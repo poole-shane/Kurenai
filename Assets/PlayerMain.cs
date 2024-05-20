@@ -5,10 +5,22 @@ using UnityEngine;
 
 public class PlayerMain : MonoBehaviour
 {
+    private const int CARDS_FLIPPABLE_AMOUNT = 2;
+    private int _cardsAmount = 8, _cardsSolvedAmount = 0;
+
+    private List<GameCard> _cards = new List<GameCard>();
+    private List<GameCard.EntityParams> _entities = new List<GameCard.EntityParams>();
+
+    private List<GameCard.EntityParams> _checkingEntities = new List<GameCard.EntityParams>();
+
+    public RectTransform Field;
+    public GameObject CardPrefab;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        Initialize();
+        PlaceCards();
     }
 
     // Update is called once per frame
@@ -17,8 +29,110 @@ public class PlayerMain : MonoBehaviour
         
     }
 
+    private void Initialize()
+    {
+        int cnt = 0;
+        int halfAmount = (int)(_cardsAmount * .5f);
+        for (int i = 0; i < _cardsAmount; i++)
+        {
+            GameCard.EntityParams entity = new GameCard.EntityParams();
+            entity.Index = i;
+
+            if (i >= halfAmount)
+                entity.Type = (CardType)(i - halfAmount);
+            else
+                entity.Type = (CardType)i;
+
+            var card = Instantiate(CardPrefab, Field);
+            GameCard cardInfo = card.GetComponent<GameCard>();
+            cardInfo.Player = this;
+            cardInfo.SetEntity(entity);
+
+            _entities.Add(entity);
+            _cards.Add(cardInfo);
+
+            cnt++;
+        }
+    }
+
+    private void PlaceCards()
+    {
+        // Set up cards
+        RectTransform rect = _cards[0].transform as RectTransform;
+        Vector2 cardSize = new Vector2(rect.rect.width, rect.rect.height);
+
+        Vector2 fieldSize = new Vector2(Field.rect.width, Field.rect.height);
+        int cardsPerRow = (int)Math.Floor(fieldSize.x / cardSize.x);
+        //int cardsPerColumn = (int)Math.Floor(fieldSize.y / cardSize.y);
+        int cardCnt = 0;
+        int rowCnt = 0;
+
+        int mostCardsInRow = _cards.Count < cardsPerRow ? _cards.Count : cardsPerRow;
+        //int mostCardsInColumn = 
+
+        float openSpaceX = fieldSize.x - (mostCardsInRow * cardSize.x);
+        float spacingX = openSpaceX / mostCardsInRow;
+        //float openSpaceY = fieldSize.y - (mostcardin)
+        //float spacingY = 
+
+        foreach (var card in _cards)
+        {
+            card.transform.localPosition = new Vector3((cardCnt * cardSize.x) + (cardSize.x * .5f) + (spacingX * cardCnt), -(rowCnt * cardSize.y) - (cardSize.y * .5f), 0);
+
+            cardCnt++;
+            if (cardCnt == cardsPerRow)
+            {
+                cardCnt = 0;
+                rowCnt++;
+            }
+        }
+    }
+
     public void CardFlipped(GameCard.EntityParams entity)
     {
         Debug.Log("Card " + entity.Type + " at index " + entity.Index + " was flipped.");
+
+        if(_checkingEntities.Count < CARDS_FLIPPABLE_AMOUNT)
+        {
+            _checkingEntities.Add(entity);
+        }
+
+        if(_checkingEntities.Count == CARDS_FLIPPABLE_AMOUNT)
+        {
+            if (_checkingEntities[0].Type == _checkingEntities[1].Type)
+            {
+                _cardsSolvedAmount += 2;
+
+                foreach (var solvedEntity in _checkingEntities)
+                {
+                    foreach (var card in _cards)
+                    {
+                        if (card.Entity == solvedEntity)
+                        {
+                            card.DelayDisappear();
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var solvedEntity in _checkingEntities)
+                {
+                    foreach (var card in _cards)
+                    {
+                        if (card.Entity == solvedEntity)
+                        {
+                            card.DelayFlip();
+                            break;
+                        }
+                    }
+                }
+            }
+            _checkingEntities.Clear();
+
+            if (_cardsSolvedAmount == _cardsAmount)
+                Debug.Log("You win the game!");
+        }
     }
 }
