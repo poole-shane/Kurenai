@@ -23,8 +23,9 @@ public enum CardType
 public enum TableLayout
 {
     TwoByTwo,
-    TwoByThree,
-    FiveBySix,
+    ThreeByTwo,
+    FourByThree,
+    SixByFive,
 }
 
 public static class Global
@@ -34,6 +35,11 @@ public static class Global
 
 static class MyExtensions
 {
+    /// <summary>
+    /// The Fisher-Yates shuffle algorithm.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
     public static void Shuffle<T>(this IList<T> list)
     {
         int n = list.Count;

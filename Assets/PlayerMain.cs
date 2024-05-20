@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerMain : MonoBehaviour
 {
     private const int CARDS_FLIPPABLE_AMOUNT = 2;
     private int _cardsAmount = 8, _cardsSolvedAmount = 0;
+    private int _turns = 0;
 
     private List<GameCard> _cards = new List<GameCard>();
     private List<GameCard.EntityParams> _entities = new List<GameCard.EntityParams>();
@@ -16,6 +18,11 @@ public class PlayerMain : MonoBehaviour
     public TableLayout Layout;
     public RectTransform Field;
     public GameObject CardPrefab;
+
+    public TextMeshProUGUI Matches;
+    public TextMeshProUGUI Turns;
+
+    public EndCard EndCard;
 
     // Start is called before the first frame update
     void Start()
@@ -42,10 +49,13 @@ public class PlayerMain : MonoBehaviour
             case TableLayout.TwoByTwo:
                 _cardsAmount = 4;
                 break;
-            case TableLayout.TwoByThree:
+            case TableLayout.ThreeByTwo:
                 _cardsAmount = 6;
                 break;
-            case TableLayout.FiveBySix:
+            case TableLayout.FourByThree:
+                _cardsAmount = 12;
+                break;
+            case TableLayout.SixByFive:
                 _cardsAmount = 30;
                 break;
         }
@@ -89,11 +99,14 @@ public class PlayerMain : MonoBehaviour
             case TableLayout.TwoByTwo:
                 cardsPerRow = 2;
                 break;
-            case TableLayout.TwoByThree:
+            case TableLayout.ThreeByTwo:
                 cardsPerRow = 2;
                 break;
-            case TableLayout.FiveBySix:
-                cardsPerRow = 5;
+            case TableLayout.FourByThree:
+                cardsPerRow = 4;
+                break;
+            case TableLayout.SixByFive:
+                cardsPerRow = 6;
                 break;
         }
 
@@ -125,9 +138,9 @@ public class PlayerMain : MonoBehaviour
         }
     }
 
-    public void CardFlipped(GameCard.EntityParams entity)
+    public void CardTapped(GameCard.EntityParams entity)
     {
-        Debug.Log("Card " + entity.Type + " at index " + entity.Index + " was flipped.");
+        //Debug.Log("Card " + entity.Type + " at index " + entity.Index + " was flipped.");
 
         if(_checkingEntities.Count < CARDS_FLIPPABLE_AMOUNT)
         {
@@ -151,6 +164,8 @@ public class PlayerMain : MonoBehaviour
                         }
                     }
                 }
+
+                Matches.text = ((int)(_cardsSolvedAmount * .5f)).ToString();
             }
             else
             {
@@ -166,12 +181,24 @@ public class PlayerMain : MonoBehaviour
                     }
                 }
             }
+            _turns++;
+            Turns.text = _turns.ToString();
             _checkingEntities.Clear();
 
             if (_cardsSolvedAmount == _cardsAmount)
-                Debug.Log("You win the game!");
+            {
+                //Debug.Log("You win the game!");
+                GameEnd();
+            }
         }
     }
 
-    
+    public void GameEnd()
+    {
+        EndCard.EntityParams entity = new EndCard.EntityParams();
+        entity.TurnsAmount = _turns;
+
+        EndCard.SetEntity(entity);
+        EndCard.Activate();
+    }
 }

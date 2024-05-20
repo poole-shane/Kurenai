@@ -77,7 +77,7 @@ public class GameCard : MonoBehaviour
     public void UpdateSelection()
     {
         FlipCard();
-        Player?.CardFlipped(this.Entity);
+        Player?.CardTapped(this.Entity);
     }
 
     private void FlipCard()
