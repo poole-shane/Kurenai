@@ -13,12 +13,17 @@ public class PlayerMain : MonoBehaviour
 
     private List<GameCard.EntityParams> _checkingEntities = new List<GameCard.EntityParams>();
 
+    public TableLayout Layout;
     public RectTransform Field;
     public GameObject CardPrefab;
 
     // Start is called before the first frame update
     void Start()
     {
+        if(MainManager.Instance != null)
+        {
+            Layout = MainManager.Instance.LayoutValue;
+        }
         Initialize();
         PlaceCards();
     }
@@ -31,6 +36,20 @@ public class PlayerMain : MonoBehaviour
 
     private void Initialize()
     {
+        switch (Layout)
+        {
+            default:
+            case TableLayout.TwoByTwo:
+                _cardsAmount = 4;
+                break;
+            case TableLayout.TwoByThree:
+                _cardsAmount = 6;
+                break;
+            case TableLayout.FiveBySix:
+                _cardsAmount = 30;
+                break;
+        }
+
         int cnt = 0;
         int halfAmount = (int)(_cardsAmount * .5f);
         for (int i = 0; i < _cardsAmount; i++)
@@ -62,29 +81,47 @@ public class PlayerMain : MonoBehaviour
         Vector2 cardSize = new Vector2(rect.rect.width, rect.rect.height);
 
         Vector2 fieldSize = new Vector2(Field.rect.width, Field.rect.height);
-        int cardsPerRow = (int)Math.Floor(fieldSize.x / cardSize.x);
-        //int cardsPerColumn = (int)Math.Floor(fieldSize.y / cardSize.y);
+        //int cardsPerRow = (int)Math.Floor(fieldSize.x / cardSize.x);
+        int cardsPerRow = 0;
+        switch (Layout)
+        {
+            default:
+            case TableLayout.TwoByTwo:
+                cardsPerRow = 2;
+                break;
+            case TableLayout.TwoByThree:
+                cardsPerRow = 2;
+                break;
+            case TableLayout.FiveBySix:
+                cardsPerRow = 5;
+                break;
+        }
+
         int cardCnt = 0;
         int rowCnt = 0;
 
         int mostCardsInRow = _cards.Count < cardsPerRow ? _cards.Count : cardsPerRow;
-        //int mostCardsInColumn = 
-
+        
         float openSpaceX = fieldSize.x - (mostCardsInRow * cardSize.x);
         float spacingX = openSpaceX / mostCardsInRow;
-        //float openSpaceY = fieldSize.y - (mostcardin)
-        //float spacingY = 
+
+        List<Vector3> positionsList = new List<Vector3>(_cards.Count);
 
         foreach (var card in _cards)
         {
-            card.transform.localPosition = new Vector3((cardCnt * cardSize.x) + (cardSize.x * .5f) + (spacingX * cardCnt), -(rowCnt * cardSize.y) - (cardSize.y * .5f), 0);
-
+            positionsList.Add(new Vector3((cardCnt * cardSize.x) + (cardSize.x * .5f) + (spacingX * cardCnt), -(rowCnt * cardSize.y) - (cardSize.y * .5f), 0));
             cardCnt++;
             if (cardCnt == cardsPerRow)
             {
                 cardCnt = 0;
                 rowCnt++;
             }
+        }
+        positionsList.Shuffle();
+
+        for(int i = 0; i < _cards.Count; i++)
+        {
+            _cards[i].transform.localPosition = positionsList[i];
         }
     }
 
@@ -135,4 +172,6 @@ public class PlayerMain : MonoBehaviour
                 Debug.Log("You win the game!");
         }
     }
+
+    
 }
