@@ -5,6 +5,7 @@ using UnityEngine.SocialPlatforms;
 
 public class GameCard : MonoBehaviour
 {
+    private const int CHANGE_MATERIAL_NO = 1;
     private enum EventType { Flip, Disappear }
 
     [System.Serializable]
@@ -30,7 +31,7 @@ public class GameCard : MonoBehaviour
     public void SetEntity(EntityParams entity)
     {
         Entity = entity;
-        _textureMaterial = CardObject.GetComponent<MeshRenderer>().materials[2];
+        _textureMaterial = CardObject.GetComponent<MeshRenderer>().materials[CHANGE_MATERIAL_NO];
 
         _textureMaterial.SetTexture("_CardFront", Textures[(int)this.Entity.Type]);
     }
