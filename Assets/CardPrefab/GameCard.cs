@@ -44,6 +44,7 @@ public class GameCard : MonoBehaviour
 
         _textureMaterial.SetTexture("_CardFront", Textures[(int)this.Entity.Type]);
 
+        // Add slight tilt to cards
         _rotation = new Vector3(0, 180, Random.Range(-3, 3));
         UpdateRotation();
     }

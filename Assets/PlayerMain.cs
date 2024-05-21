@@ -96,7 +96,7 @@ public class PlayerMain : MonoBehaviour
         Vector2 cardSize = new Vector2(rect.rect.width, rect.rect.height);
 
         Vector2 fieldSize = new Vector2(Field.rect.width, Field.rect.height);
-        //int cardsPerRow = (int)Math.Floor(fieldSize.x / cardSize.x);
+
         int cardsPerRow = 0;
         switch (Layout)
         {
@@ -105,7 +105,7 @@ public class PlayerMain : MonoBehaviour
                 cardsPerRow = 2;
                 break;
             case TableLayout.ThreeByTwo:
-                cardsPerRow = 2;
+                cardsPerRow = 3;
                 break;
             case TableLayout.FourByThree:
                 cardsPerRow = 4;
@@ -114,30 +114,37 @@ public class PlayerMain : MonoBehaviour
                 cardsPerRow = 6;
                 break;
         }
+        int cardsPerColumn = _cards.Count / cardsPerRow;
 
         int cardCnt = 0;
         int rowCnt = 0;
 
         int mostCardsInRow = _cards.Count < cardsPerRow ? _cards.Count : cardsPerRow;
-        
-        float openSpaceX = fieldSize.x - (mostCardsInRow * cardSize.x);
-        float spacingX = openSpaceX / mostCardsInRow;
 
         List<Vector3> positionsList = new List<Vector3>(_cards.Count);
+        float spacing = 40f;
+        float addX = 0, addY = 0;
+        // Add offset to center cards to stage
+        Vector2 offset = new Vector2((fieldSize.x - (cardsPerRow * (cardSize.x + spacing) + (cardSize.x * .5f))) * .5f, (fieldSize.y - (cardsPerColumn * (cardSize.y + spacing))) * .5f);
 
-        foreach (var card in _cards)
+        for(int i = 0; i < _cards.Count; i++)
         {
-            positionsList.Add(new Vector3((cardCnt * cardSize.x) + (cardSize.x * .5f) + (spacingX * cardCnt), -(rowCnt * cardSize.y) - (cardSize.y * .5f), 0));
+            positionsList.Add(new Vector3((cardSize.x * .5f) + addX + offset.x, -(cardSize.y * .5f) - addY - offset.x));
+            addX += cardSize.x + spacing;
             cardCnt++;
             if (cardCnt == cardsPerRow)
             {
                 cardCnt = 0;
+                addX = 0;
+                addY += cardSize.y + spacing;
                 rowCnt++;
             }
         }
+
+        // shuffle cards by simply shuffling their positions
         positionsList.Shuffle();
 
-        for(int i = 0; i < _cards.Count; i++)
+        for (int i = 0; i < _cards.Count; i++)
         {
             _cards[i].transform.localPosition = positionsList[i];
         }
