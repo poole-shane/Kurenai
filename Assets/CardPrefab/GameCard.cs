@@ -7,6 +7,7 @@ public class GameCard : MonoBehaviour
 {
     private const int CHANGE_MATERIAL_NO = 1;
     private enum EventType { Flip, Disappear }
+    private enum FlipDirection { ToFront, ToBack }
 
     [System.Serializable]
     public class EntityParams
@@ -16,8 +17,10 @@ public class GameCard : MonoBehaviour
     }
 
     private EventType _eventFlag;
-    private float _eventDelay = .5f, _eventElapsed = 0;
+    private float _eventElapsed = 0, _flipElapsed;
+    private FlipDirection _flipDirection;
     private bool _selected = false;
+    private Vector3 _rotation;
     private Material _textureMaterial;
     public EntityParams Entity;
 
@@ -25,6 +28,12 @@ public class GameCard : MonoBehaviour
     public GameObject CardObject;
     public AudioSource CardFlipSound;
     public List<Texture> Textures = new List<Texture>(Global.CARD_TYPES_MAX);
+
+    /*
+     * Parameters that can be tweaked in inspector
+     */
+    public float _eventDelay = .5f;
+    public float _flipDuration = .16f;
 
     public bool Selected => _selected;
 
@@ -34,17 +43,16 @@ public class GameCard : MonoBehaviour
         _textureMaterial = CardObject.GetComponent<MeshRenderer>().materials[CHANGE_MATERIAL_NO];
 
         _textureMaterial.SetTexture("_CardFront", Textures[(int)this.Entity.Type]);
+
+        _rotation = new Vector3(0, 180, Random.Range(-3, 3));
+        UpdateRotation();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        /*EntityParams test = new EntityParams();
-        test.Index = UnityEngine.Random.Range(0, 8);
-        test.Type = (CardType)UnityEngine.Random.Range(0, Global.CARD_TYPES_MAX);
-
-        SetEntity(test);*/
         _eventElapsed = _eventDelay;
+        _flipElapsed = _flipDuration;
     }
 
     // Update is called once per frame
@@ -68,12 +76,38 @@ public class GameCard : MonoBehaviour
                 }
             }
         }
+
+        if(_flipElapsed < _flipDuration)
+        {
+            _flipElapsed += Time.deltaTime;
+
+            switch(_flipDirection)
+            {
+                case FlipDirection.ToFront:
+                    _rotation.y = Mathf.Lerp(180, 0, _flipElapsed / _flipDuration);
+                    if (_flipElapsed >= _flipDuration)
+                        _rotation.y = 0;
+                    UpdateRotation();
+                    break;
+                case FlipDirection.ToBack:
+                    _rotation.y = Mathf.Lerp(0, 180, _flipElapsed / _flipDuration);
+                    if (_flipElapsed >= _flipDuration)
+                        _rotation.y = 180;
+                    UpdateRotation();
+                    break;
+            }
+        }
     }
 
     private void OnMouseUp()
     {
         if (_eventElapsed >= _eventDelay && !_selected)
             UpdateSelection();
+    }
+
+    private void UpdateRotation()
+    {
+        transform.localRotation = Quaternion.Euler(_rotation);
     }
 
     public void UpdateSelection()
@@ -85,7 +119,13 @@ public class GameCard : MonoBehaviour
     private void FlipCard()
     {
         _selected = !_selected;
-        CardObject.transform.localRotation = _selected ? Quaternion.Euler(-90, 0, 0) : Quaternion.Euler(-90, 180, 0);
+
+        _flipDirection = _selected ? FlipDirection.ToFront : FlipDirection.ToBack;
+        _flipElapsed = 0;
+
+        // Set rotation to starting value
+        _rotation.y = _selected ? 180 : 0;
+        UpdateRotation();
 
         // Play sound if the card's front side has been revealed
         if (_selected)
