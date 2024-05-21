@@ -24,6 +24,8 @@ public class PlayerMain : MonoBehaviour
 
     public EndCard EndCard;
 
+    public GameSoundController SoundController;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -166,6 +168,7 @@ public class PlayerMain : MonoBehaviour
                 }
 
                 Matches.text = ((int)(_cardsSolvedAmount * .5f)).ToString();
+                SoundController.PlayAudio(GameSoundController.AudioType.Match);
             }
             else
             {
@@ -180,6 +183,7 @@ public class PlayerMain : MonoBehaviour
                         }
                     }
                 }
+                SoundController.PlayAudio(GameSoundController.AudioType.Mismatch);
             }
             _turns++;
             Turns.text = _turns.ToString();
@@ -188,6 +192,7 @@ public class PlayerMain : MonoBehaviour
             if (_cardsSolvedAmount == _cardsAmount)
             {
                 //Debug.Log("You win the game!");
+                SoundController.PlayAudio(GameSoundController.AudioType.Victory);
                 GameEnd();
             }
         }

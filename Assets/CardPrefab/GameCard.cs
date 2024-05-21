@@ -22,6 +22,7 @@ public class GameCard : MonoBehaviour
 
     public PlayerMain Player;
     public GameObject CardObject;
+    public AudioSource CardFlipSound;
     public List<Texture> Textures = new List<Texture>(Global.CARD_TYPES_MAX);
 
     public bool Selected => _selected;
@@ -84,6 +85,10 @@ public class GameCard : MonoBehaviour
     {
         _selected = !_selected;
         CardObject.transform.localRotation = _selected ? Quaternion.Euler(-90, 0, 0) : Quaternion.Euler(-90, 180, 0);
+
+        // Play sound if the card's front side has been revealed
+        if (_selected)
+            CardFlipSound.Play();
     }
 
     private void DisappearCard()
