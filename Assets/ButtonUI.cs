@@ -8,8 +8,9 @@ public class ButtonUI : MonoBehaviour
     [SerializeField]
     private string _newGameLevel = "GameScene";
 
-    public void StartNewGame()
+    public void StartNewGame(int layout)
     {
+        MainManager.Instance.LayoutValue = (TableLayout)layout;
         SceneManager.LoadScene(_newGameLevel);
     }
 }
