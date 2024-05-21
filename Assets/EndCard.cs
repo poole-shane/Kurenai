@@ -13,16 +13,19 @@ public class EndCard : MonoBehaviour
     public class EntityParams
     {
         public int TurnsAmount;
+        public int FinalScore;
     }
 
     public EntityParams Entity;
     public TextMeshProUGUI Turns;
+    public TextMeshProUGUI Score;
 
     public void SetEntity(EntityParams entity)
     {
         Entity = entity;
 
         Turns.text = Entity.TurnsAmount.ToString();
+        Score.text = Entity.FinalScore.ToString();
     }
 
     public void BackToStart()

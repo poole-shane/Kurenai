@@ -7,8 +7,10 @@ using UnityEngine;
 public class PlayerMain : MonoBehaviour
 {
     private const int CARDS_FLIPPABLE_AMOUNT = 2;
+    private const int MATCH_POINTS = 100, COMBO_POINTS = 50, SUPER_COMBO_POINTS = 100;
+
     private int _cardsAmount = 8, _cardsSolvedAmount = 0;
-    private int _turns = 0;
+    private int _turns = 0, _score = 0, _consecutiveMatchCnt = 0;
 
     private List<GameCard> _cards = new List<GameCard>();
     private List<GameCard.EntityParams> _entities = new List<GameCard.EntityParams>();
@@ -21,6 +23,7 @@ public class PlayerMain : MonoBehaviour
 
     public TextMeshProUGUI Matches;
     public TextMeshProUGUI Turns;
+    public TextMeshProUGUI Score;
 
     public EndCard EndCard;
 
@@ -169,6 +172,14 @@ public class PlayerMain : MonoBehaviour
 
                 Matches.text = ((int)(_cardsSolvedAmount * .5f)).ToString();
                 SoundController.PlayAudio(GameSoundController.AudioType.Match);
+                _score += MATCH_POINTS;
+
+                // Give the player extra points with consecutive matches
+                _consecutiveMatchCnt++;
+                if (_consecutiveMatchCnt >= 3)
+                    _score += SUPER_COMBO_POINTS;
+                else if (_consecutiveMatchCnt > 1)
+                    _score += COMBO_POINTS;
             }
             else
             {
@@ -184,10 +195,13 @@ public class PlayerMain : MonoBehaviour
                     }
                 }
                 SoundController.PlayAudio(GameSoundController.AudioType.Mismatch);
+                _consecutiveMatchCnt = 0;
             }
+            _checkingEntities.Clear();
+
             _turns++;
             Turns.text = _turns.ToString();
-            _checkingEntities.Clear();
+            Score.text = _score.ToString();
 
             if (_cardsSolvedAmount == _cardsAmount)
             {
@@ -202,6 +216,7 @@ public class PlayerMain : MonoBehaviour
     {
         EndCard.EntityParams entity = new EndCard.EntityParams();
         entity.TurnsAmount = _turns;
+        entity.FinalScore = _score;
 
         EndCard.SetEntity(entity);
         EndCard.Activate();
