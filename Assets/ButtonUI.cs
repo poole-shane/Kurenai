@@ -5,12 +5,22 @@ using UnityEngine.SceneManagement;
 
 public class ButtonUI : MonoBehaviour
 {
-    [SerializeField]
-    private string _newGameLevel = "GameScene";
+    public GameObject ResumeButton;
+
+    private void Start()
+    {
+        ResumeButton.SetActive(MainManager.Instance.SaveDataAvailable);
+    }
 
     public void StartNewGame(int layout)
     {
-        MainManager.Instance.LayoutValue = (TableLayout)layout;
-        SceneManager.LoadScene(_newGameLevel);
+        MainManager.Instance.DeleteSaveData();
+        MainManager.Instance.SessionData.LayoutType = layout;
+        SceneManager.LoadScene(GlobalConstants.GAME_SCENE);
+    }
+
+    public void ResumeGame()
+    {
+        SceneManager.LoadScene(GlobalConstants.GAME_SCENE);
     }
 }

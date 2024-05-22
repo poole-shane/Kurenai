@@ -30,6 +30,11 @@ public class EndCard : MonoBehaviour
 
     public void BackToStart()
     {
+        if(MainManager.Instance != null)
+        {
+            MainManager.Instance.DeleteSaveData();
+        }
+
         SceneManager.LoadScene(_menuScene);
     }
 

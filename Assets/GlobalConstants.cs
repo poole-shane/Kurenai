@@ -28,9 +28,17 @@ public enum TableLayout
     SixByFive,
 }
 
-public static class Global
+public static class GlobalConstants
 {
     public const int CARD_TYPES_MAX = 15;
+
+    public const int TWO_BY_TWO_CARDS_AMOUNT = 4;
+    public const int THREE_BY_TWO_CARDS_AMOUNT = 6;
+    public const int FOUR_BY_THREE_CARDS_AMOUNT = 12;
+    public const int SIX_BY_FIVE_CARDS_AMOUNT = 30;
+
+    public const string START_MENU = "StartMenu";
+    public const string GAME_SCENE = "GameScene";
 }
 
 static class MyExtensions

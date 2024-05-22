@@ -14,6 +14,7 @@ public class GameCard : MonoBehaviour
     {
         public int Index;
         public CardType Type;
+        public bool Solved;
     }
 
     private EventType _eventFlag;
@@ -27,7 +28,7 @@ public class GameCard : MonoBehaviour
     public PlayerMain Player;
     public GameObject CardObject;
     public AudioSource CardFlipSound;
-    public List<Texture> Textures = new List<Texture>(Global.CARD_TYPES_MAX);
+    public List<Texture> Textures = new List<Texture>(GlobalConstants.CARD_TYPES_MAX);
 
     /*
      * Parameters that can be tweaked in inspector
@@ -44,9 +45,14 @@ public class GameCard : MonoBehaviour
 
         _textureMaterial.SetTexture("_CardFront", Textures[(int)this.Entity.Type]);
 
-        // Add slight tilt to cards
-        _rotation = new Vector3(0, 180, Random.Range(-3, 3));
-        UpdateRotation();
+        if (Entity.Solved)
+            DisappearCard();
+        else
+        {
+            // Add slight tilt to cards
+            _rotation = new Vector3(0, 180, Random.Range(-3, 3));
+            UpdateRotation();
+        }
     }
 
     // Start is called before the first frame update
@@ -138,14 +144,22 @@ public class GameCard : MonoBehaviour
         CardObject.SetActive(false);
     }
 
-    public void DelayFlip()
+    /// <summary>
+    /// Flips the card back. Called when a mismatch occurs and the
+    /// card reverts to its original unflipped state.
+    /// </summary>
+    public void FlipToBack()
     {
         _eventElapsed = 0;
         _eventFlag = EventType.Flip;
     }
 
-    public void DelayDisappear()
+    /// <summary>
+    /// Call to set the card to the solved state and make card disappear.
+    /// </summary>
+    public void Solve()
     {
+        Entity.Solved = true;
         _eventElapsed = 0;
         _eventFlag = EventType.Disappear;
     }
