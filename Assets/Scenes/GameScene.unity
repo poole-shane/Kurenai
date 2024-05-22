@@ -1985,6 +1985,7 @@ MonoBehaviour:
   Layout: 1
   Field: {fileID: 720123398}
   CardPrefab: {fileID: 7984602845415626099, guid: d1c84666638e89948ab39ce9c65f9155, type: 3}
+  QuitButton: {fileID: 267030348}
   Matches: {fileID: 1178381595}
   Turns: {fileID: 119419682}
   Score: {fileID: 573227195}

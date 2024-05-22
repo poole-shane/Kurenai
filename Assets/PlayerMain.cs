@@ -19,6 +19,7 @@ public class PlayerMain : MonoBehaviour
     public TableLayout Layout;
     public RectTransform Field;
     public GameObject CardPrefab;
+    public GameObject QuitButton;
 
     public TextMeshProUGUI Matches;
     public TextMeshProUGUI Turns;
@@ -288,6 +289,8 @@ public class PlayerMain : MonoBehaviour
         EndCard.EntityParams entity = new EndCard.EntityParams();
         entity.TurnsAmount = _turns;
         entity.FinalScore = _score;
+
+        QuitButton.SetActive(false);
 
         EndCard.SetEntity(entity);
         EndCard.Activate();
