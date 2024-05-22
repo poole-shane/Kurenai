@@ -160,7 +160,7 @@ public class PlayerMain : MonoBehaviour
     {
         // Set up cards
         RectTransform rect = _cards[0].transform as RectTransform;
-        Vector2 cardSize = new Vector2(rect.rect.width, rect.rect.height);
+        Vector2 originalCardSize = new Vector2(rect.rect.width, rect.rect.height);
 
         Vector2 fieldSize = new Vector2(Field.rect.width, Field.rect.height);
 
@@ -186,24 +186,26 @@ public class PlayerMain : MonoBehaviour
         int cardCnt = 0;
         int rowCnt = 0;
 
-        List<Vector3> positionsList = new List<Vector3>(_cards.Count);
         float spacing = 40f;
         float addX = 0, addY = 0;
-        // Add offset to center cards to stage
-        Vector2 offset = new Vector2((fieldSize.x - (cardsPerRow * (cardSize.x + spacing) + (cardSize.x * .5f))) * .5f, (fieldSize.y - (cardsPerColumn * (cardSize.y + spacing))) * .5f);
 
-        // Assign card positions
+        Vector2 spaceForCards = new Vector2(fieldSize.x - (spacing * cardsPerRow), fieldSize.y - (spacing * cardsPerColumn));
+        float newScale = spaceForCards.y / cardsPerColumn / originalCardSize.y;
+        Vector2 newCardSize = new Vector2(originalCardSize.x * newScale, originalCardSize.y * newScale);
+
+        // Position and scale cards accordingly
         for(int i = 0; i < _cards.Count; i++)
         {
-            _cards[i].transform.localPosition = new Vector3((cardSize.x * .5f) + addX + offset.x, -(cardSize.y * .5f) - addY - offset.x);
+            _cards[i].transform.localPosition = new Vector3((newCardSize.x * .5f) + addX, -(newCardSize.y * .5f) - addY);
+            _cards[i].transform.localScale = new Vector3(newScale, newScale, 1f);
 
-            addX += cardSize.x + spacing;
+            addX += newCardSize.x + spacing;
             cardCnt++;
             if(cardCnt == cardsPerRow)
             {
                 cardCnt = 0;
                 addX = 0;
-                addY += cardSize.y + spacing;
+                addY += newCardSize.y + spacing;
                 rowCnt++;
             }
         }
