@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
+using UnityEngine.UI;
 
 public class GameCard : MonoBehaviour
 {
-    private const int CHANGE_MATERIAL_NO = 1;
     private enum EventType { Flip, Disappear }
     private enum FlipDirection { ToFront, ToBack }
 
@@ -22,13 +22,14 @@ public class GameCard : MonoBehaviour
     private FlipDirection _flipDirection;
     private bool _selected = false;
     private Vector3 _rotation;
-    private Material _textureMaterial;
-    public EntityParams Entity;
+    private Sprite _frontSprite;
 
+    public EntityParams Entity;
     public PlayerMain Player;
-    public GameObject CardObject;
     public AudioSource CardFlipSound;
-    public List<Texture> Textures = new List<Texture>(GlobalConstants.CARD_TYPES_MAX);
+    public Image CardFace;
+    public Sprite BackSprite;
+    public List<Sprite> CardSprites = new List<Sprite>(GlobalConstants.CARD_TYPES_MAX);
 
     /*
      * Parameters that can be tweaked in inspector
@@ -41,9 +42,9 @@ public class GameCard : MonoBehaviour
     public void SetEntity(EntityParams entity)
     {
         Entity = entity;
-        _textureMaterial = CardObject.GetComponent<MeshRenderer>().materials[CHANGE_MATERIAL_NO];
 
-        _textureMaterial.SetTexture("_CardFront", Textures[(int)this.Entity.Type]);
+        CardFace.sprite = BackSprite;
+        _frontSprite = CardSprites[(int)this.Entity.Type];
 
         if (Entity.Solved)
             DisappearCard();
@@ -88,16 +89,24 @@ public class GameCard : MonoBehaviour
         {
             _flipElapsed += Time.deltaTime;
 
-            switch(_flipDirection)
+            float oldRot = _rotation.y;
+
+            switch (_flipDirection)
             {
                 case FlipDirection.ToFront:
                     _rotation.y = Mathf.Lerp(180, 0, _flipElapsed / _flipDuration);
+                    if (oldRot > 90 && _rotation.y <= 90)
+                        CardFace.sprite = _frontSprite;
+
                     if (_flipElapsed >= _flipDuration)
                         _rotation.y = 0;
                     UpdateRotation();
                     break;
                 case FlipDirection.ToBack:
                     _rotation.y = Mathf.Lerp(0, 180, _flipElapsed / _flipDuration);
+                    if (oldRot < 90 && _rotation.y >= 90)
+                        CardFace.sprite = BackSprite;
+
                     if (_flipElapsed >= _flipDuration)
                         _rotation.y = 180;
                     UpdateRotation();
@@ -141,7 +150,7 @@ public class GameCard : MonoBehaviour
 
     private void DisappearCard()
     {
-        CardObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     /// <summary>
